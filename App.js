@@ -1,16 +1,17 @@
 // Esse inicio sao importacoes necessarias para o funcionamento do projeto
 // a funcao useState eu usei para definir e atualizar os componentes
-import React, { useState } from 'react';
-import { StyleSheet, SafeAreaView, TouchableOpacity, Text, View, TextInput, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, SafeAreaView, TouchableOpacity, Text, View, TextInput, FlatList, Platform } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { NavigationContainer } from '@react-navigation/native'; // responsavel por criar um container de telas
 import { createStackNavigator } from '@react-navigation/stack'; // responsavel por criar o estilo de nevagacao no caso eh uma nevegacao por pilha (stack)
-
 // HomeScreen eh a tela principal, sera a tela que ira redenrizar primeiro ao iniciar o app
 // HomeScreen recebe uma proprieda navigation para navegar entre as telas
 const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.h1}>Bem Vindo</Text>
+
       {/* a prop navigation tem uma funcao chamada navigate que responsavel de chamar a outra tela, caso a tela de contatos */}
       {/* a tela contato eh chamada quando eu clico no botao pela prop onPress */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Contact')}>
@@ -32,13 +33,25 @@ const ContactScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [id, setId] = useState(0);
   const [schedule, setSchedule] = useState([])
+  const [image, setImage] = useState(null)
+
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== 'web') {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+        if (status !== 'granted') {
+          alert('Sorry, we need camera roll permissions to make this work!')
+        }
+      }
+    })()
+  }, [])
 
   // essa funcao eh um evento quando eu clicar ira salvar na lista de objetos
   const handleButtonclick = () => {
     setId(id + 1) // significa que estou atualizando o estado do id = 0 para id = id + 1
     // a linha de baixo eh igual, estou salvando na lista objetos
     // agenda = [] ==> agenda = agenda + {id, nome, numero de telefone}
-    setSchedule((currentState) => [...currentState, { id, name, phoneNumber }])
+    setSchedule((currentState) => [...currentState, { id, name, phoneNumber, image }])
   }
 
   // funcao para excluir extamente o item aque for precionado
@@ -46,6 +59,21 @@ const ContactScreen = () => {
     setSchedule(
       schedule.slice().filter((item) => item.id !== id)
     )
+  }
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    })
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
   }
 
   // funcao responsavel por renderizar cada item da lista
@@ -64,6 +92,9 @@ const ContactScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.form}>
         <Text style={styles.h1}>Cadastro de contato</Text>
+
+        <Button title="Pick an image from camera roll" onPress={pickImage} />
+        {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
 
         <TextInput
           style={styles.input}
@@ -94,26 +125,64 @@ const ContactScreen = () => {
   )
 }
 
+const ImagePickerExample = () => {
+  const [image, setImage] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== 'web') {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          alert('Sorry, we need camera roll permissions to make this work!');
+        }
+      }
+    })();
+  }, []);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Button title="Pick an image from camera roll" onPress={pickImage} />
+      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+    </View>
+  );
+}
+
 // createStackNavigator é uma função que retorna um objeto contendo 2 propriedades:
 // Stack e Navigator. Ambos são componentes React usados ​​para configurar o navegador.
 // O Navigator deve conter elementos de Tela como seus filhos para definir a configuração das rotas.
 const Stack = createStackNavigator()
-
 export default function App() {
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Contact" component={ContactScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaView style={styles.container}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Contact" component={ContactScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // significa que estou usando toda a tela
+    flex: 1,  // significa que estou usando toda a tela
     alignItems: 'center', // alinhando os itens verticalmente
     justifyContent: 'center', // alinhando os itens horizontamente
   },
