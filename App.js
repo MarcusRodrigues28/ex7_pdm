@@ -1,19 +1,15 @@
-// Esse inicio sao importacoes necessarias para o funcionamento do projeto
-// a funcao useState eu usei para definir e atualizar os componentes
+
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, SafeAreaView, TouchableOpacity, Text, View, TextInput, FlatList, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { NavigationContainer } from '@react-navigation/native'; // responsavel por criar um container de telas
-import { createStackNavigator } from '@react-navigation/stack'; // responsavel por criar o estilo de nevagacao no caso eh uma nevegacao por pilha (stack)
-// HomeScreen eh a tela principal, sera a tela que ira redenrizar primeiro ao iniciar o app
-// HomeScreen recebe uma proprieda navigation para navegar entre as telas
+import { NavigationContainer } from '@react-navigation/native'; 
+import { createStackNavigator } from '@react-navigation/stack'; 
+
 const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.h1}>Bem Vindo</Text>
 
-      {/* a prop navigation tem uma funcao chamada navigate que responsavel de chamar a outra tela, caso a tela de contatos */}
-      {/* a tela contato eh chamada quando eu clico no botao pela prop onPress */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Contact')}>
         <Text style={styles.textButton}>Adicionar Contato</Text>
       </TouchableOpacity>
@@ -21,14 +17,8 @@ const HomeScreen = ({ navigation }) => {
   )
 }
 
-
-// ContactScreen eh a segunda tela para ser redenrizada
-// Aqui esta a logica principal do aplicativo
 const ContactScreen = () => {
 
-  // aqui eu inicio todos os estados da aplicao (nome, numero de telefone, a lista de objetos e um id)
-  // id sera usado para excluir exatamente o item da lista
-  // se quiser aprender mais https://reactjs.org/docs/hooks-state.html
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [id, setId] = useState(0);
@@ -46,15 +36,11 @@ const ContactScreen = () => {
     })()
   }, [])
 
-  // essa funcao eh um evento quando eu clicar ira salvar na lista de objetos
   const handleButtonclick = () => {
-    setId(id + 1) // significa que estou atualizando o estado do id = 0 para id = id + 1
-    // a linha de baixo eh igual, estou salvando na lista objetos
-    // agenda = [] ==> agenda = agenda + {id, nome, numero de telefone}
+    setId(id + 1) 
     setSchedule((currentState) => [...currentState, { id, name, phoneNumber, image }])
   }
 
-  // funcao para excluir extamente o item aque for precionado
   const handleRemoveItem = (id) => {
     setSchedule(
       schedule.slice().filter((item) => item.id !== id)
@@ -76,15 +62,10 @@ const ContactScreen = () => {
     }
   }
 
-  // funcao responsavel por renderizar cada item da lista
-  // como tu pode ver, eu to passando uma prop do tipo item
-  // esse item eh cada objeto da nossa lista de objetos {id, name, phoneNumber}
   const renderItem = ({ item }) => (
-    // o item que sera redenrizado sera um botao
-    // o botao com a prop onLongPress eh responsavel por chamar a funcao para remover o item da lista
     <TouchableOpacity style={styles.itemList} onLongPress={() => handleRemoveItem(item.id)}>
-      <Text style={styles.textItem}>{item.name.toUpperCase()}</Text> {/* acessando a propriedade name e transaformando tudo em maiusculo*/}
-      <Text style={styles.textItem}>{item.phoneNumber}</Text> {/* acessando a propriedade phoneNumber */}
+      <Text style={styles.textItem}>{item.name.toUpperCase()}</Text> 
+      <Text style={styles.textItem}>{item.phoneNumber}</Text>
     </TouchableOpacity>
   )
 
@@ -99,13 +80,13 @@ const ContactScreen = () => {
         <TextInput
           style={styles.input}
           placeholder='Nome'
-          onChangeText={text => setName(text)} // essa prop significa q cada letra que eu digito atualiza o estado name
+          onChangeText={text => setName(text)} 
           value={name}
         />
 
         <TextInput style={styles.input}
           placeholder='Telefone'
-          keyboardType={'numeric'} // essa prop significa que quero apenas numeros no teclado
+          keyboardType={'numeric'} 
           onChangeText={text => setPhoneNumber(text)}
           value={phoneNumber}
         />
@@ -115,19 +96,16 @@ const ContactScreen = () => {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={schedule} // Lista de objetos passado para prop data
-        renderItem={renderItem} // o item aque sera redenrizado
-        keyExtractor={(item) => item.id.toString()} // FlatList precisa de um identificador unico, por isso usei o ID
-        style={{ width: '95%', marginVertical: 14 }} // prop de estilo
-        showsVerticalScrollIndicator={false} // removando a scroll bar
+        data={schedule} 
+        renderItem={renderItem} 
+        keyExtractor={(item) => item.id.toString()} 
+        style={{ width: '95%', marginVertical: 14 }} 
+        showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
   )
 }
 
-// createStackNavigator é uma função que retorna um objeto contendo 2 propriedades:
-// Stack e Navigator. Ambos são componentes React usados ​​para configurar o navegador.
-// O Navigator deve conter elementos de Tela como seus filhos para definir a configuração das rotas.
 const Stack = createStackNavigator()
 export default function App() {
 
@@ -145,12 +123,12 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,  // significa que estou usando toda a tela
-    alignItems: 'center', // alinhando os itens verticalmente
-    justifyContent: 'center', // alinhando os itens horizontamente
+    flex: 1,  
+    alignItems: 'center', 
+    justifyContent: 'center', 
   },
   form: {
-    width: '100%', // largura
+    width: '100%', 
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: '30%'
@@ -161,18 +139,18 @@ const styles = StyleSheet.create({
     marginBottom: 6
   },
   input: {
-    height: 40, // comprimento
+    height: 40, 
     width: '95%',
     margin: 12,
     borderWidth: 1,
-    borderRadius: 6, //arredondamento das pontas da borda
-    padding: 8, // espacamento interno
+    borderRadius: 6, 
+    padding: 8, 
     fontSize: 18
   },
   button: {
     height: 40,
     width: '95%',
-    margin: 12, // espacamento externo
+    margin: 12,
     backgroundColor: '#6200EE',
     alignItems: 'center',
     justifyContent: 'center',
@@ -190,8 +168,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderRadius: 6,
-    flexDirection: 'row', // mudando a direcao de coluna para linha
-    justifyContent: 'space-around' // alinhando entre os espacos da caixa
+    flexDirection: 'row', 
+    justifyContent: 'space-around' 
 
   },
   textItem: {
